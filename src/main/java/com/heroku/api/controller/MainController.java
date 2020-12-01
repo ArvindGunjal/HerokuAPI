@@ -17,7 +17,7 @@ public class MainController {
 	@GetMapping("/")
 	public String getMessage() {
 		
-		return "Hello Arvind";
+		return "Hello World";
 		
 	}
 	
