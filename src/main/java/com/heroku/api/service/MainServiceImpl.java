@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import com.heroku.api.repository.RatingRepository;
 import com.heroku.api.request.vo.MovieDeleteRequestVO;
 import com.heroku.api.request.vo.MovieRequestVO;
 import com.heroku.api.request.vo.MovieSearchRequestVO;
+import com.heroku.api.request.vo.MoviesRequestVO;
 import com.heroku.api.request.vo.ReviewSearchRequestVO;
 import com.heroku.api.response.vo.CommonResponseEntity;
 import com.heroku.api.response.vo.MovieSearchResponseVO;
@@ -41,7 +43,7 @@ public class MainServiceImpl implements MainService {
 		
 		try {
 
-			MovieModel movieModelDb = movieRepository.findByName(movieRequest.getMovieName());
+			MovieModel movieModelDb = movieRepository.findByNameIgnoreCase(movieRequest.getMovieName());
 
 			if (movieModelDb != null) {
 
@@ -100,7 +102,7 @@ public class MainServiceImpl implements MainService {
 
 		try {
 
-			MovieModel movieModelDb = movieRepository.findByName(movieDeleteRequest.getMovieName());
+			MovieModel movieModelDb = movieRepository.findByNameIgnoreCase(movieDeleteRequest.getMovieName());
 			if(movieModelDb != null) {
 				
 				movieRepository.deleteByName(movieDeleteRequest.getMovieName());
@@ -133,11 +135,10 @@ public class MainServiceImpl implements MainService {
 		
 		try {
 			
-			MovieModel movieModelDb = movieRepository.findByName(movieSearchRequest.getMovieName());
+			MovieModel movieModelDb = movieRepository.findByNameIgnoreCase(movieSearchRequest.getMovieName());
 			if(movieModelDb != null) {
 				
-				Pageable page = PageRequest.of(Integer.parseInt(movieSearchRequest.getPageNo()), Integer.parseInt(movieSearchRequest.getPageSize()));
-				List<RatingModel> ratingModel = ratingRepository.findByMovieId(movieModelDb, page);
+				List<RatingModel> ratingModel = ratingRepository.findByMovieId(movieModelDb);
 				movieSearchResponse.setMovieName(movieModelDb.getName());
 				movieSearchResponse.setReleaseDate(movieModelDb.getReleaseDate().toString());
 				movieSearchResponse.setAvgRating(movieModelDb.getAvgRating() != null ? movieModelDb.getAvgRating().toString() : "NA");
@@ -154,7 +155,7 @@ public class MainServiceImpl implements MainService {
 				movieSearchResponse.setReviews(ratingSearchList);
 				
 				cre.setData(movieSearchResponse);
-				cre.setMessage("Movie List Generated Successfully");
+				cre.setMessage("Response Generated Successfully");
 				cre.setIsException(false);
 				
 			}else {
@@ -187,7 +188,6 @@ public class MainServiceImpl implements MainService {
 			
 			if(!ratingList.isEmpty()) {
 				
-//				reviewSearchResponse.setReviewModel(ratingList);
 				List<Integer> uniqueList = ratingList.stream().distinct().collect(Collectors.toList());
 				
 				uniqueList.forEach((movieId)->{
@@ -209,6 +209,38 @@ public class MainServiceImpl implements MainService {
 			cre.setIsException(true);
 		}
 
+		return cre;
+	}
+
+	@Override
+	public CommonResponseEntity getMovies(MoviesRequestVO moviesRequest) {
+		// TODO Auto-generated method stub
+		
+		CommonResponseEntity cre = new CommonResponseEntity();
+		
+		try {
+			
+			Pageable page = PageRequest.of(Integer.parseInt(moviesRequest.getPageNo()), Integer.parseInt(moviesRequest.getPageSize()));
+			List<MovieModel> movieListDb = movieRepository.findAll(page).getContent();
+			
+			if(!movieListDb.isEmpty()) {
+				cre.setData(movieListDb);
+				cre.setIsException(false);
+				cre.setMessage("Data Found");
+			}else {
+				cre.setMessage("No Data Found");
+				cre.setIsException(false);
+			}
+			
+			
+			
+		}catch(Exception ex) {
+			ex.printStackTrace();
+			cre.setMessage("Something went wrong");
+			cre.setIsException(true);
+		}
+
+		
 		return cre;
 	}
 	

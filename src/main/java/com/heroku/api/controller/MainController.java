@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.heroku.api.request.vo.MovieDeleteRequestVO;
 import com.heroku.api.request.vo.MovieRequestVO;
 import com.heroku.api.request.vo.MovieSearchRequestVO;
+import com.heroku.api.request.vo.MoviesRequestVO;
 import com.heroku.api.request.vo.ReviewSearchRequestVO;
 import com.heroku.api.response.vo.CommonResponseEntity;
 import com.heroku.api.service.MainService;
@@ -19,7 +20,7 @@ import com.heroku.api.service.MainService;
 public class MainController {
 	
 	@Autowired
-	private MainService mainServie;
+	private MainService mainService;
 	
 	@GetMapping("/getMessage")
 	public String getMessageArvind() {
@@ -36,42 +37,50 @@ public class MainController {
 		
 	}
 	
-	@PostMapping(path = "/save-movie")
+	@PostMapping(path = "/save-movie",consumes = "application/json", produces = "application/json")
 	public ResponseEntity<CommonResponseEntity> saveMovie(@RequestBody MovieRequestVO movieRequest) {
 	
-		CommonResponseEntity cre = mainServie.saveMovieRecord(movieRequest);
+		CommonResponseEntity cre = mainService.saveMovieRecord(movieRequest);
 		
 		return new ResponseEntity<CommonResponseEntity>(cre, HttpStatus.OK);
 		
 	}
 	
-	@PostMapping(path = "/delete-movie")
+	@PostMapping(path = "/delete-movie",consumes = "application/json", produces = "application/json")
 	public ResponseEntity<CommonResponseEntity> deleteMovie(@RequestBody MovieDeleteRequestVO movieDeleteRequest) {
 	
-		CommonResponseEntity cre = mainServie.deleteMovie(movieDeleteRequest);
+		CommonResponseEntity cre = mainService.deleteMovie(movieDeleteRequest);
 		
 		return new ResponseEntity<CommonResponseEntity>(cre, HttpStatus.OK);
 		
 	}
 	
-	@PostMapping(path = "/search-movie")
+	@PostMapping(path = "/search-movie",consumes = "application/json", produces = "application/json")
 	public ResponseEntity<CommonResponseEntity> searchMovie(@RequestBody MovieSearchRequestVO movieSearchRequest) {
 	
-		CommonResponseEntity cre = mainServie.searchMovie(movieSearchRequest);
+		CommonResponseEntity cre = mainService.searchMovie(movieSearchRequest);
 		
 		return new ResponseEntity<CommonResponseEntity>(cre, HttpStatus.OK);
 		
 	}
 	
-	@PostMapping(path = "/search-comment")
+	@PostMapping(path = "/search-comment",consumes = "application/json", produces = "application/json")
 	public ResponseEntity<CommonResponseEntity> searchReview(@RequestBody ReviewSearchRequestVO reviewSearchRequest) {
 	
-		CommonResponseEntity cre = mainServie.searchByComments(reviewSearchRequest);
+		CommonResponseEntity cre = mainService.searchByComments(reviewSearchRequest);
 		
 		return new ResponseEntity<CommonResponseEntity>(cre, HttpStatus.OK);
 		
 	}
 	
+	@PostMapping(path = "/movies",consumes = "application/json", produces = "application/json")
+	public ResponseEntity<CommonResponseEntity> searchReview(@RequestBody MoviesRequestVO movieRequest) {
+	
+		CommonResponseEntity cre = mainService.getMovies(movieRequest);
+		
+		return new ResponseEntity<CommonResponseEntity>(cre, HttpStatus.OK);
+		
+	}
 	
 	
 }
